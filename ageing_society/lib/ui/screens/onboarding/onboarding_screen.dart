@@ -35,7 +35,7 @@ class OnboardingScreen extends StatelessWidget {
                     ),
                     child: Center(
                       child: Image.asset(
-                        'assets/images/liftup_logo.png',
+                        'assets/images/logo.png',
                         fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) => const Text(
                           'LiftUp\nLogo',
