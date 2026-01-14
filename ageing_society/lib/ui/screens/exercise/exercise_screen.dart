@@ -41,7 +41,7 @@ class ExerciseScreen extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(18),
                     image: DecorationImage(
-                      image: const AssetImage('assets/images/exercise.png'),
+                      image: const AssetImage('lib/assets/images/exercise.png'),
                       fit: BoxFit.cover,
                       onError: (_, __) {},
                     ),

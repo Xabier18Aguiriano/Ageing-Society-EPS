@@ -18,7 +18,7 @@ class OnboardingScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset('assets/images/logo.png', height: 180, width: 180, fit: BoxFit.contain),
+                    Image.asset('lib/assets/images/logo.png', height: 180, width: 180, fit: BoxFit.contain),
                     const SizedBox(height: 28),
                     const Text('LiftUp', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF2A4B74))),
                   ],
