@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/primary_button.dart';
-import '../core/app_routes.dart';
+import '../../widgets/primary_button.dart';
+import '../../../core/app_routes.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});

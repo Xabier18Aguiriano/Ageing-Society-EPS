@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/sticker.dart';
+import '../../models/sticker.dart';
 
 class StickerCard extends StatelessWidget {
   final Sticker sticker;

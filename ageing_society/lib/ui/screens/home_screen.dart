@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/message_card.dart';
-import '../widgets/bottom_nav_bar.dart';
-import '../services/sticker_service.dart';
-import '../core/app_routes.dart';
+import '../widgets/bottom_nav.dart';
+import '../../services/sticker_service.dart';
+import '../../core/app_routes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final stickers = StickerService.instance.stickers;
     return Scaffold(
       appBar: AppBar(title: const Text("Today's Activity", style: TextStyle(fontWeight: FontWeight.bold))),
-      bottomNavigationBar: SimpleBottomNav(currentIndex: navIndex, onTap: (i) {
+      bottomNavigationBar: BottomNav(currentIndex: navIndex, onTap: (i) {
         if (i == 2) {
           Navigator.pushNamed(context, AppRoutes.settings);
           return;

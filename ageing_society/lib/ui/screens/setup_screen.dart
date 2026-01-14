@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/text_field_widget.dart';
-import '../services/user_service.dart';
-import '../core/app_routes.dart';
+import '../../services/user_service.dart';
+import '../../core/app_routes.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});

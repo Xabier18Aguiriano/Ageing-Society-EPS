@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../screens/onboarding_screen.dart';
-import '../screens/setup_screen.dart';
-import '../screens/stickers_screen.dart';
-import '../screens/home_screen.dart';
-import '../screens/settings_screen.dart';
-import '../screens/routine_screen.dart';
+import '../ui/screens/onboarding/onboarding_screen.dart';
+import '../ui/screens/setup_screen.dart';
+import '../ui/screens/stickers_screen.dart';
+import '../ui/screens/home_screen.dart';
+import '../ui/screens/settings_screen.dart';
+import '../ui/screens/routine_screen.dart';
 
 class AppRoutes {
   static const onboarding = '/';

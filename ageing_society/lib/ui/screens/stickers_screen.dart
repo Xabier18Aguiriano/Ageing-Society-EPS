@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/primary_button.dart';
 import '../widgets/sticker_card.dart';
-import '../services/mock_nfc_service.dart';
-import '../services/sticker_service.dart';
-import '../core/app_routes.dart';
+import '../../services/mock_nfc_service.dart';
+import '../../services/sticker_service.dart';
+import '../../core/app_routes.dart';
 
 class StickersScreen extends StatefulWidget {
   const StickersScreen({super.key});
