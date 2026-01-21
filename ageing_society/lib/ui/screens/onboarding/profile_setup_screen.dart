@@ -14,15 +14,17 @@ class ProfileSetupScreen extends StatefulWidget {
 }
 
 class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final _name = TextEditingController();
   final _yob = TextEditingController();
-  final _country = TextEditingController();
+
+  String? _country;
 
   @override
   void dispose() {
     _name.dispose();
     _yob.dispose();
-    _country.dispose();
     super.dispose();
   }
 
@@ -35,40 +37,128 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
             constraints: const BoxConstraints(maxWidth: 420),
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('SET UP YOUR\nPROFILE',
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'SET UP YOUR\nPROFILE',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.blue)),
-                  const SizedBox(height: 18),
-                  _Field(hint: 'Your name', controller: _name),
-                  const SizedBox(height: 10),
-                  _Field(hint: 'Year of birth', controller: _yob, keyboard: TextInputType.number),
-                  const SizedBox(height: 10),
-                  _Field(hint: 'Country of residence', controller: _country),
-                  const SizedBox(height: 26),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 54,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.blue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.blue,
                       ),
-                      onPressed: () {
-                        context.read<AppState>().setProfile(
-                              name: _name.text.trim(),
-                              yob: _yob.text.trim(),
-                              country: _country.text.trim(),
-                            );
-                        Navigator.pushNamed(context, AddSensorsScreen.route);
-                      },
-                      child: const Text('CONTINUE', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 18),
+
+                    _Field(
+                      hint: 'Your name',
+                      helper: 'Only letters are allowed',
+                      controller: _name,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Name is required';
+                        }
+                        if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+                          return 'Only letters are allowed';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    _Field(
+                      hint: 'Birth year',
+                      helper: 'Enter a valid 4-digit year',
+                      controller: _yob,
+                      keyboard: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Birth year is required';
+                        }
+                        if (!RegExp(r'^\d{4}$').hasMatch(value)) {
+                          return 'Enter a valid 4-digit year';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    DropdownButtonFormField<String>(
+                      value: _country,
+                      decoration: InputDecoration(
+                        hintText: 'Country of residence',
+                        helperText: 'Select your country',
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'Poland', child: Text('Poland')),
+                        DropdownMenuItem(value: 'France', child: Text('France')),
+                        DropdownMenuItem(value: 'Spain', child: Text('Spain')),
+                        DropdownMenuItem(value: 'Portugal', child: Text('Portugal')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _country = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Country is required';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 26),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 54,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.blue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: () {
+                          if (!_formKey.currentState!.validate()) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please complete all fields correctly'),
+                              ),
+                            );
+                            return;
+                          }
+
+                          context.read<AppState>().setProfile(
+                                name: _name.text.trim(),
+                                yob: _yob.text.trim(),
+                                country: _country!,
+                              );
+
+                          Navigator.pushNamed(context, AddSensorsScreen.route);
+                        },
+                        child: const Text(
+                          'CONTINUE',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -80,22 +170,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
 class _Field extends StatelessWidget {
   final String hint;
+  final String helper;
   final TextEditingController controller;
   final TextInputType keyboard;
+  final String? Function(String?)? validator;
 
   const _Field({
     required this.hint,
+    required this.helper,
     required this.controller,
     this.keyboard = TextInputType.text,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       keyboardType: keyboard,
+      validator: validator,
       decoration: InputDecoration(
         hintText: hint,
+        helperText: helper,
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),

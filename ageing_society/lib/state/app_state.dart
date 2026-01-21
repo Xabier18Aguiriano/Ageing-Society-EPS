@@ -33,10 +33,19 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addSensorMock() {
-    // Simulate adding a new sensor
+  // UPDATED METHOD
+  void addSensorMock({required String name}) {
     final id = 'sensor_${DateTime.now().millisecondsSinceEpoch}';
-    sensors.add(Sensor(id: id, name: 'New sensor', connected: true, active: false));
+
+    sensors.add(
+      Sensor(
+        id: id,
+        name: name,
+        connected: true,
+        active: false,
+      ),
+    );
+
     notifyListeners();
   }
 

@@ -25,39 +25,73 @@ class MySensorsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('YOUR SENSORS', style: TextStyle(fontWeight: FontWeight.w900, color: AppTheme.blue)),
+                const Text(
+                  'YOUR SENSORS',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.blue,
+                  ),
+                ),
                 const SizedBox(height: 6),
-                const Text('Manage your home activity points', style: TextStyle(color: AppTheme.muted)),
+                const Text(
+                  'Manage your home activity points',
+                  style: TextStyle(color: AppTheme.muted),
+                ),
                 const SizedBox(height: 14),
 
                 Expanded(
                   child: ListView(
                     children: app.sensors.map((s) {
-                      final bg = s.connected ? AppTheme.green.withOpacity(0.12) : AppTheme.orange.withOpacity(0.14);
-                      final dot = s.connected ? AppTheme.green : Colors.redAccent;
+                      final bg = s.connected
+                          ? AppTheme.green.withOpacity(0.12)
+                          : AppTheme.orange.withOpacity(0.14);
+                      final dot =
+                          s.connected ? AppTheme.green : Colors.redAccent;
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 14),
                         padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(18)),
+                        decoration: BoxDecoration(
+                          color: bg,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Row(
                               children: [
                                 Expanded(
-                                  child: Text(s.name,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w900,
-                                        color: s.connected ? Colors.green.shade900 : Colors.orange.shade900,
-                                      )),
+                                  child: Text(
+                                    s.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: s.connected
+                                          ? Colors.green.shade900
+                                          : Colors.orange.shade900,
+                                    ),
+                                  ),
                                 ),
-                                Container(width: 10, height: 10, decoration: BoxDecoration(color: dot, shape: BoxShape.circle)),
+                                Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: dot,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
                                 const SizedBox(width: 8),
-                                Text(s.connected ? 'Connected' : 'Disconnected', style: const TextStyle(color: AppTheme.muted)),
+                                Text(
+                                  s.connected
+                                      ? 'Connected'
+                                      : 'Disconnected',
+                                  style: const TextStyle(
+                                    color: AppTheme.muted,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 12),
+
                             Row(
                               children: [
                                 Expanded(
@@ -67,10 +101,22 @@ class MySensorsScreen extends StatelessWidget {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppTheme.blue,
                                         foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(14),
+                                        ),
                                       ),
-                                      onPressed: () => context.read<AppState>().toggleConnect(s.id),
-                                      child: Text(s.connected ? 'DISCONNECT' : 'CONNECT', style: const TextStyle(fontWeight: FontWeight.w900)),
+                                      onPressed: () => context
+                                          .read<AppState>()
+                                          .toggleConnect(s.id),
+                                      child: Text(
+                                        s.connected
+                                            ? 'DISCONNECT'
+                                            : 'CONNECT',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -82,18 +128,28 @@ class MySensorsScreen extends StatelessWidget {
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.redAccent,
                                       foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(14),
+                                      ),
                                     ),
-                                    onPressed: () => context.read<AppState>().deleteSensor(s.id),
-                                    child: const Icon(Icons.delete_rounded),
+                                    onPressed: () => context
+                                        .read<AppState>()
+                                        .deleteSensor(s.id),
+                                    child:
+                                        const Icon(Icons.delete_rounded),
                                   ),
                                 ),
                               ],
                             ),
+
                             const SizedBox(height: 10),
+
                             if (s.connected)
                               TextButton(
-                                onPressed: () => context.read<AppState>().setActiveSensor(s.id),
+                                onPressed: () => context
+                                    .read<AppState>()
+                                    .setActiveSensor(s.id),
                                 child: const Text('Set as active'),
                               ),
                           ],
@@ -103,29 +159,109 @@ class MySensorsScreen extends StatelessWidget {
                   ),
                 ),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 56,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.green,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                          onPressed: () => context.read<AppState>().addSensorMock(),
-                          child: const Text('ADD SENSOR', style: TextStyle(fontWeight: FontWeight.w900)),
-                        ),
+                SizedBox(
+                  height: 56,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.green,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                  ],
+                    onPressed: () => _showAddSensorDialog(context),
+                    child: const Text(
+                      'ADD SENSOR',
+                      style: TextStyle(fontWeight: FontWeight.w900),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  // -------- ADD SENSOR DIALOG --------
+
+  void _showAddSensorDialog(BuildContext context) {
+    final controller = TextEditingController();
+    bool isValid = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Add sensor',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        labelText: 'Sensor name',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          isValid = value.trim().isNotEmpty;
+                        });
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: isValid
+                                ? () {
+                                    context
+                                        .read<AppState>()
+                                        .addSensorMock(
+                                          name: controller.text.trim(),
+                                        );
+                                    Navigator.pop(context);
+                                  }
+                                : null,
+                            child: const Text('Add'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
