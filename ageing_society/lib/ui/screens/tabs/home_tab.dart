@@ -53,6 +53,7 @@ class HomeTab extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: () {
+                    context.read<AppState>().startRandomExercise();
                     Navigator.pushNamed(context, ExerciseScreen.route);
                   },
                   child: const Text(

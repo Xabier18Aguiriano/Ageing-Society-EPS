@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  video_player: ^2.8.2
   flutter:
     sdk: flutter
   provider: ^6.1.2
@@ -50,6 +51,7 @@ dev_dependencies:
 flutter:
   assets:
     - lib/assets/images/
+    - lib/assets/videos/
     
 
   # The following line ensures that the Material Icons font is

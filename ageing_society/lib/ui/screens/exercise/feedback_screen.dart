@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../../theme/app_theme.dart';
+import '../main_shell.dart';
 
 class FeedbackScreen extends StatelessWidget {
   static const route = '/feedback';
@@ -27,7 +29,11 @@ class FeedbackScreen extends StatelessWidget {
                     child: const Text(
                       'Great job! 🎉\nYou completed\na movement!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.blue),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.blue,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 18),
@@ -38,10 +44,24 @@ class FeedbackScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.green,
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('GO BACK', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                      onPressed: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          MainShell.route,
+                          (route) => false,
+                        );
+                      },
+                      child: const Text(
+                        'GO BACK',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     ),
                   ),
                 ],

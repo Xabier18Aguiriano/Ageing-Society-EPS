@@ -9,6 +9,8 @@ class AppState extends ChangeNotifier {
   String yearOfBirth = '';
   String country = '';
 
+  
+
   // Sensors
   final List<Sensor> sensors = [
     Sensor(id: 'kitchen', name: 'Kitchen sensor', connected: true, active: true),
@@ -18,11 +20,28 @@ class AppState extends ChangeNotifier {
   // Activity mock
   int todayExercises = 3;
   int weeklyMovements = 18;
-
+  //Exercise state
+  Exercise? currentExercise;
+  Exercise? _lastExercise;
+  
   // Exercise flow
-  String currentExerciseTitle = 'Lift your knees 5 times';
-  String currentExerciseHint =
-      'Hold the counter or a chair for stability.\nRaise each knee slowly until hip height.';
+  void startRandomExercise() {
+    if (exercises.isEmpty) return;
+
+    final random = Random();
+    Exercise selected;
+
+    do {
+      selected = exercises[random.nextInt(exercises.length)];
+    } while (_lastExercise != null &&
+        selected == _lastExercise &&
+        exercises.length > 1);
+
+    _lastExercise = selected;
+    currentExercise = selected;
+    notifyListeners();
+  }
+
 
   void setProfile({
     required String name,
@@ -79,7 +98,7 @@ class AppState extends ChangeNotifier {
   }
 }
 
-// Exercises (mock database)
+// Exercises "database"
 final List<Exercise> exercises = [
   Exercise(
     id: 'ex_fist_squeezing',
@@ -88,6 +107,7 @@ final List<Exercise> exercises = [
         'Gently close your fists and hold for 3 seconds. '
         'Release completely and stretch the fingers. '
         'Repeat 10 times.',
+    video: 'lib/assets/videos/example.mp4',
   ),
 
   Exercise(
@@ -97,6 +117,7 @@ final List<Exercise> exercises = [
         'Touch the thumb with the index finger, then the middle finger, '
         'ring finger and little finger. Then go back in reverse order. '
         'Do 5 to 10 cycles.',
+    video: 'lib/assets/videos/example.mp4',
   ),
 
   Exercise(
@@ -104,6 +125,7 @@ final List<Exercise> exercises = [
     name: 'Short reading',
     description:
         'Read a short paragraph out loud at a comfortable pace.',
+    video: 'lib/assets/videos/example.mp4',
   ),
 
   Exercise(
@@ -113,6 +135,7 @@ final List<Exercise> exercises = [
         'You can sit or stand. Touch your left knee with your right hand, '
         'then your right knee with your left hand. '
         'Alternate 10 to 20 times at a comfortable speed.',
+    video: 'lib/assets/videos/example.mp4',
   ),
 
   Exercise(
@@ -122,5 +145,7 @@ final List<Exercise> exercises = [
         'Stand up and lift one knee at a time to hip height. '
         'Use a chair or wall for support if needed. '
         'Repeat 5 to 10 times per leg.',
+    video: 'lib/assets/videos/example.mp4',
   ),
 ];
+
