@@ -6,6 +6,7 @@ import '../ui/screens/home_screen.dart';
 import '../ui/screens/settings_screen.dart';
 import '../ui/screens/routine_screen.dart';
 import '../ui/screens/profile_screen.dart';
+import '../ui/screens/exercise/exercise_screen.dart';
 class AppRoutes {
   static const onboarding = '/';
   static const setup = '/setup';
@@ -14,6 +15,7 @@ class AppRoutes {
   static const settings = '/settings';
   static const routine = '/routine';
   static const profile = '/profile';
+  static const exercise = '/exercise';
 
   static Map<String, WidgetBuilder> routes = {
     onboarding: (_) => const OnboardingScreen(),
@@ -23,5 +25,6 @@ class AppRoutes {
     settings: (_) => const SettingsScreen(),
     routine: (_) => const RoutineScreen(),
     profile: (_) => const ProfileScreen(),
+    exercise: (_) => const ExerciseScreen(),
   };
 }

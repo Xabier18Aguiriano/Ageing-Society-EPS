@@ -10,6 +10,9 @@ import 'ui/screens/main_shell.dart';
 import 'ui/screens/sensors/my_sensors_screen.dart';
 import 'ui/screens/exercise/exercise_screen.dart';
 import 'ui/screens/exercise/feedback_screen.dart';
+import 'ui/screens/routine_screen.dart';
+import 'ui/screens/profile_screen.dart';
+
 
 void main() {
   runApp(
@@ -37,8 +40,10 @@ class LiftUpApp extends StatelessWidget {
 
         MainShell.route: (_) => const MainShell(),
         MySensorsScreen.route: (_) => const MySensorsScreen(),
+        RoutineScreen.route: (_) => const RoutineScreen(),
         ExerciseScreen.route: (_) => const ExerciseScreen(),
         FeedbackScreen.route: (_) => const FeedbackScreen(),
+        ProfileScreen.route: (context) => const ProfileScreen(),
       },
     );
   }

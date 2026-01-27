@@ -149,7 +149,7 @@ class MySensorsScreen extends StatelessWidget {
                               TextButton(
                                 onPressed: () => context
                                     .read<AppState>()
-                                    .setActiveSensor(s.id),
+                                    .toggleActiveSensor(s.id),
                                 child: const Text('Set as active'),
                               ),
                           ],

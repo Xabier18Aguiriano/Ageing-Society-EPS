@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../sensors/my_sensors_screen.dart';
+import 'package:ageing_society/ui/screens/profile_screen.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -22,7 +23,9 @@ class SettingsTab extends StatelessWidget {
                 title: 'Profile',
                 subtitle: 'Edit your name, age\nor profile photo',
                 icon: Icons.person_rounded,
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, ProfileScreen.route);
+                },  
               ),
               const SizedBox(height: 12),
 

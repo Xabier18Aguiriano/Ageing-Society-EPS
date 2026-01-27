@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../theme/app_theme.dart';
 import '../../../state/app_state.dart';
@@ -18,14 +19,32 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
   final _name = TextEditingController();
   final _yob = TextEditingController();
-
   String? _country;
+
+  @override
+  void initState() {
+    super.initState();
+    // Cargar datos existentes de AppState
+    final app = context.read<AppState>();
+    _name.text = app.name;
+    _yob.text = app.yearOfBirth;
+    _country = app.country.isNotEmpty ? app.country : null;
+  }
 
   @override
   void dispose() {
     _name.dispose();
     _yob.dispose();
     super.dispose();
+  }
+
+  // Función para guardar en SharedPreferences (opcional)
+  Future<void> _saveProfileToPrefs(
+      String name, String yob, String country) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('profile_name', name);
+    await prefs.setString('profile_yob', yob);
+    await prefs.setString('profile_country', country);
   }
 
   @override
@@ -53,6 +72,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                     ),
                     const SizedBox(height: 18),
 
+                    // Nombre
                     _Field(
                       hint: 'Your name',
                       helper: 'Only letters are allowed',
@@ -70,6 +90,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                     const SizedBox(height: 10),
 
+                    // Año de nacimiento
                     _Field(
                       hint: 'Birth year',
                       helper: 'Enter a valid 4-digit year',
@@ -88,6 +109,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                     const SizedBox(height: 10),
 
+                    // País
                     DropdownButtonFormField<String>(
                       value: _country,
                       decoration: InputDecoration(
@@ -95,17 +117,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         helperText: 'Select your country',
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 14),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
                       ),
                       items: const [
-                        DropdownMenuItem(value: 'Poland', child: Text('Poland')),
-                        DropdownMenuItem(value: 'France', child: Text('France')),
+                        DropdownMenuItem(
+                            value: 'Poland', child: Text('Poland')),
+                        DropdownMenuItem(
+                            value: 'France', child: Text('France')),
                         DropdownMenuItem(value: 'Spain', child: Text('Spain')),
-                        DropdownMenuItem(value: 'Portugal', child: Text('Portugal')),
+                        DropdownMenuItem(
+                            value: 'Portugal', child: Text('Portugal')),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -122,6 +148,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                     const SizedBox(height: 26),
 
+                    // Botón CONTINUE
                     SizedBox(
                       width: double.infinity,
                       height: 54,
@@ -133,27 +160,35 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           if (!_formKey.currentState!.validate()) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Please complete all fields correctly'),
+                                content: Text(
+                                    'Please complete all fields correctly'),
                               ),
                             );
                             return;
                           }
 
+                          // Guardar en AppState
                           context.read<AppState>().setProfile(
                                 name: _name.text.trim(),
                                 yob: _yob.text.trim(),
                                 country: _country!,
                               );
 
+                          // Guardar en SharedPreferences (opcional)
+                          await _saveProfileToPrefs(
+                              _name.text.trim(), _yob.text.trim(), _country!);
+
+                          // Navegar a la siguiente pantalla
                           Navigator.pushNamed(context, AddSensorsScreen.route);
                         },
                         child: const Text(
                           'CONTINUE',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w800),
                         ),
                       ),
                     ),
@@ -168,6 +203,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   }
 }
 
+// Campo de formulario reutilizable
 class _Field extends StatelessWidget {
   final String hint;
   final String helper;
@@ -194,7 +230,8 @@ class _Field extends StatelessWidget {
         helperText: helper,
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

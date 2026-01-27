@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import '../../../theme/app_theme.dart';
-import '../main_shell.dart';
 
 class FeedbackScreen extends StatelessWidget {
   static const route = '/feedback';
@@ -23,11 +21,11 @@ class FeedbackScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: AppTheme.blue.withOpacity(0.10),
+                      color: AppTheme.blue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: const Text(
-                      'Great job! 🎉\nYou completed\na movement!',
+                      'Great job! 🎉\nExercise completed',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 22,
@@ -49,11 +47,8 @@ class FeedbackScreen extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          MainShell.route,
-                          (route) => false,
-                        );
+                        Navigator.pop(context); // sale del feedback
+                        Navigator.pop(context); // vuelve a RoutineScreen
                       },
                       child: const Text(
                         'GO BACK',

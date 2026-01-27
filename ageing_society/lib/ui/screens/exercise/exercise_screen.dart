@@ -22,12 +22,14 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     super.didChangeDependencies();
     final exercise = context.read<AppState>().currentExercise;
 
-    if (exercise != null && _controller == null) {
+    if (exercise != null) {
+      _controller?.dispose();
       _controller = VideoPlayerController.asset(exercise.video)
+        ..setLooping(true)
         ..initialize().then((_) {
-          _controller!.setLooping(true);
-          _controller!.play();
+          if (!mounted) return;
           setState(() {});
+          _controller!.play();
         });
     }
   }
@@ -43,9 +45,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     final app = context.watch<AppState>();
     final exercise = app.currentExercise;
 
+    if (exercise == null) {
+      return const Scaffold(
+        body: Center(child: Text('No exercise')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exercises'),
+        title: const Text('Exercise'),
         backgroundColor: Colors.transparent,
       ),
       body: Center(
@@ -53,96 +61,89 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
           constraints: const BoxConstraints(maxWidth: 420),
           child: Padding(
             padding: const EdgeInsets.all(18),
-            child: exercise == null
-                ? const Center(child: Text('No exercise selected'))
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text(
-                        "LET'S START!",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.blue,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Exercise detected from ${app.activeSensor?.name ?? "Kitchen Sticker"}',
-                        style: const TextStyle(color: AppTheme.muted),
-                      ),
-                      const SizedBox(height: 14),
-
-                      // VIDEO
-                      Container(
-                        height: 240,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: _controller != null &&
-                                _controller!.value.isInitialized
-                            ? FittedBox(
-                                fit: BoxFit.cover,
-                                child: SizedBox(
-                                  width:
-                                      _controller!.value.size.width,
-                                  height:
-                                      _controller!.value.size.height,
-                                  child: VideoPlayer(_controller!),
-                                ),
-                              )
-                            : const Center(
-                                child: CircularProgressIndicator(),
-                              ),
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      Text(
-                        exercise.name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.orange,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        exercise.description,
-                        style: const TextStyle(
-                          color: AppTheme.muted,
-                          height: 1.3,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      SizedBox(
-                        height: 56,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.green,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          onPressed: () => Navigator.pushNamed(
-                            context,
-                            FeedbackScreen.route,
-                          ),
-                          child: const Text(
-                            "I'M DONE",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // NOMBRE DEL EJERCICIO CENTRADO
+                Center(
+                  child: Text(
+                    exercise.name,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.orange,
+                    ),
                   ),
+                ),
+                const SizedBox(height: 16),
+
+                // 🎥 VIDEO CARD (FULL FRAME)
+                Container(
+                  height: 260,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: _controller != null && _controller!.value.isInitialized
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: FittedBox(
+                            fit: BoxFit.cover,
+                            child: SizedBox(
+                              width: _controller!.value.size.width,
+                              height: _controller!.value.size.height,
+                              child: VideoPlayer(_controller!),
+                            ),
+                          ),
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                ),
+                const SizedBox(height: 20),
+
+                // DESCRIPCIÓN CENTRADA Y MÁS GRANDE
+                Center(
+                  child: Text(
+                    exercise.description,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: AppTheme.muted,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+
+                const Spacer(),
+
+                // BOTÓN "I'M DONE"
+                SizedBox(
+                  height: 56,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.green,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    onPressed: () {
+                      app.nextRoutineSensor();
+                      Navigator.pushNamed(context, FeedbackScreen.route);
+                    },
+                    child: const Text(
+                      "I'M DONE",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

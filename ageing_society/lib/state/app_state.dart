@@ -9,21 +9,30 @@ class AppState extends ChangeNotifier {
   String yearOfBirth = '';
   String country = '';
 
-  
-
   // Sensors
   final List<Sensor> sensors = [
     Sensor(id: 'kitchen', name: 'Kitchen sensor', connected: true, active: true),
     Sensor(id: 'bedroom', name: 'Bedroom sensor', connected: true, active: false),
   ];
 
-  // Activity mock
-  int todayExercises = 3;
-  int weeklyMovements = 18;
-  //Exercise state
+  // Activity counters
+  int todayExercises = 0;
+
+  // Movimientos diarios para el gráfico (0=lunes, 6=domingo)
+  Map<int, int> dailyMovements = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+  };
+
+  // Ejercicio actual
   Exercise? currentExercise;
   Exercise? _lastExercise;
-  
+
   // Exercise flow
   void startRandomExercise() {
     if (exercises.isEmpty) return;
@@ -42,7 +51,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-
   void setProfile({
     required String name,
     required String yob,
@@ -54,10 +62,8 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // UPDATED METHOD
   void addSensorMock({required String name}) {
     final id = 'sensor_${DateTime.now().millisecondsSinceEpoch}';
-
     sensors.add(
       Sensor(
         id: id,
@@ -66,8 +72,11 @@ class AppState extends ChangeNotifier {
         active: false,
       ),
     );
-
     notifyListeners();
+  }
+
+  List<Sensor> get activeSensors {
+    return sensors.where((s) => s.active && s.connected).toList();
   }
 
   void toggleConnect(String id) {
@@ -82,10 +91,10 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setActiveSensor(String id) {
-    for (final s in sensors) {
-      s.active = (s.id == id) && s.connected;
-    }
+  void toggleActiveSensor(String id) {
+    final s = sensors.firstWhere((x) => x.id == id);
+    if (!s.connected) return;
+    s.active = !s.active;
     notifyListeners();
   }
 
@@ -96,56 +105,113 @@ class AppState extends ChangeNotifier {
       return null;
     }
   }
+
+  // ======================
+  // MINI ROUTINE LOGIC
+  // ======================
+
+  List<Sensor> routineSensors = [];
+  int routineIndex = 0;
+
+  // Start routine using 3–4 random active & connected sensors
+  void startRoutine() {
+    final availableSensors = sensors.where((s) => s.active && s.connected).toList();
+    if (availableSensors.isEmpty) return;
+
+    final random = Random();
+    availableSensors.shuffle(random);
+
+    final count = min(availableSensors.length, random.nextBool() ? 3 : 4);
+
+    routineSensors = [];
+    for (final sensor in availableSensors) {
+      if (routineSensors.isNotEmpty && routineSensors.last.id == sensor.id) continue;
+      routineSensors.add(sensor);
+      if (routineSensors.length == count) break;
+    }
+
+    routineIndex = 0;
+    notifyListeners();
+  }
+
+  Sensor? get currentRoutineSensor {
+    if (isRoutineFinished) return null;
+    return routineSensors[routineIndex];
+  }
+
+  void nextRoutineSensor() {
+    routineIndex++;
+    if (isRoutineFinished) {
+      todayExercises++; // Incrementa ejercicios hoy
+      addMovementToday(); // Sincroniza con gráfico
+    }
+    notifyListeners();
+  }
+
+  bool get isRoutineFinished => routineIndex >= routineSensors.length;
+
+  void resetRoutine() {
+    routineSensors.clear();
+    routineIndex = 0;
+    notifyListeners();
+  }
+
+  // ======================
+  // MOVEMENTS BY DAY
+  // ======================
+
+  // Suma +1 al día actual
+  void addMovementToday() {
+    final today = DateTime.now().weekday - 1; // 0 = lunes
+    dailyMovements[today] = (dailyMovements[today] ?? 0) + 1;
+    notifyListeners();
+  }
+
+  // Total semanal
+  int get weeklyMovements => dailyMovements.values.fold(0, (sum, val) => sum + val);
 }
 
+// ======================
 // Exercises "database"
+// ======================
+
 final List<Exercise> exercises = [
   Exercise(
     id: 'ex_fist_squeezing',
     name: 'Fist squeezing',
-    description:
-        'Gently close your fists and hold for 3 seconds. '
-        'Release completely and stretch the fingers. '
-        'Repeat 10 times.',
+    description: 'Close fists for 3s, release, stretch fingers. Repeat 10 times.',
     video: 'lib/assets/videos/example.mp4',
   ),
-
   Exercise(
     id: 'ex_finger_tapping',
     name: 'Finger tapping',
-    description:
-        'Touch the thumb with the index finger, then the middle finger, '
-        'ring finger and little finger. Then go back in reverse order. '
-        'Do 5 to 10 cycles.',
+    description: 'Tap thumb with each finger in order, then reverse. 5–10 cycles.',
     video: 'lib/assets/videos/example.mp4',
   ),
-
   Exercise(
     id: 'ex_short_reading',
     name: 'Short reading',
-    description:
-        'Read a short paragraph out loud at a comfortable pace.',
+    description: 'Read a short paragraph aloud at a comfortable pace.',
     video: 'lib/assets/videos/example.mp4',
   ),
-
   Exercise(
     id: 'ex_hand_knee_tapping',
     name: 'Hand-to-knee tapping',
-    description:
-        'You can sit or stand. Touch your left knee with your right hand, '
-        'then your right knee with your left hand. '
-        'Alternate 10 to 20 times at a comfortable speed.',
+    description: 'Touch left knee with right hand, alternate 10–20 times.',
     video: 'lib/assets/videos/example.mp4',
   ),
-
   Exercise(
     id: 'ex_knee_lifts',
     name: 'Knee lifts',
-    description:
-        'Stand up and lift one knee at a time to hip height. '
-        'Use a chair or wall for support if needed. '
-        'Repeat 5 to 10 times per leg.',
+    description: 'Lift knees to hip height, 5–10 times per leg, support if needed.',
+    video: 'lib/assets/videos/example.mp4',
+  ),
+   Exercise(
+    id: 'ex_arm_circles',
+    name: 'Arm circles',
+    description: 'Make small circles with straight arms. 10 circles in each direction.',
     video: 'lib/assets/videos/example.mp4',
   ),
 ];
+
 
