@@ -204,13 +204,13 @@ final List<Exercise> exercises = [
     id: 'ex_knee_lifts',
     name: 'Knee lifts',
     description: 'Lift knees to hip height, 5–10 times per leg, support if needed.',
-    video: 'lib/assets/videos/example.mp4',
+    video: 'lib/assets/videos/knee_lifts.mp4',
   ),
    Exercise(
     id: 'ex_arm_circles',
     name: 'Arm circles',
     description: 'Make small circles with straight arms. 10 circles in each direction.',
-    video: 'lib/assets/videos/example.mp4',
+    video: 'lib/assets/videos/arms_circle.mp4',
   ),
 ];
 

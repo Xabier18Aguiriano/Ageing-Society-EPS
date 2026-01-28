@@ -80,7 +80,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
                 // 🎥 VIDEO CARD (FULL FRAME)
                 Container(
-                  height: 260,
+                  height: 380,
                   decoration: BoxDecoration(
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(18),
