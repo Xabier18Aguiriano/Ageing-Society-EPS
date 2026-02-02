@@ -13,11 +13,15 @@ import 'ui/screens/exercise/feedback_screen.dart';
 import 'ui/screens/routine_screen.dart';
 import 'ui/screens/profile_screen.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // necesario para SharedPreferences
 
-void main() {
+  final appState = AppState();
+  await appState.loadFromStorage(); // cargamos datos guardados
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AppState(),
+    ChangeNotifierProvider.value(
+      value: appState,
       child: const LiftUpApp(),
     ),
   );

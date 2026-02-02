@@ -7,6 +7,8 @@ import '../ui/screens/settings_screen.dart';
 import '../ui/screens/routine_screen.dart';
 import '../ui/screens/profile_screen.dart';
 import '../ui/screens/exercise/exercise_screen.dart';
+import '../ui/screens/family_connection_screen.dart';
+
 class AppRoutes {
   static const onboarding = '/';
   static const setup = '/setup';
@@ -16,6 +18,7 @@ class AppRoutes {
   static const routine = '/routine';
   static const profile = '/profile';
   static const exercise = '/exercise';
+  static const family = '/family_contact';
 
   static Map<String, WidgetBuilder> routes = {
     onboarding: (_) => const OnboardingScreen(),
@@ -26,5 +29,6 @@ class AppRoutes {
     routine: (_) => const RoutineScreen(),
     profile: (_) => const ProfileScreen(),
     exercise: (_) => const ExerciseScreen(),
+    family: (_) => const FamilyConnectionScreen(),
   };
 }

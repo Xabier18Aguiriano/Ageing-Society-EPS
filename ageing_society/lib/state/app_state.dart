@@ -1,39 +1,40 @@
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/sensor.dart';
 import '../models/exercise.dart';
-import 'dart:math';
+import '../models/family_contact.dart';
 
 class AppState extends ChangeNotifier {
+  // --------------------------
   // Profile
+  // --------------------------
   String name = '';
   String yearOfBirth = '';
   String country = '';
 
+  // --------------------------
   // Sensors
+  // --------------------------
   final List<Sensor> sensors = [
     Sensor(id: 'kitchen', name: 'Kitchen sensor', connected: true, active: true),
     Sensor(id: 'bedroom', name: 'Bedroom sensor', connected: true, active: false),
   ];
 
+  // --------------------------
   // Activity counters
+  // --------------------------
   int todayExercises = 0;
+  Map<int, int> dailyMovements = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0};
 
-  // Movimientos diarios para el gráfico (0=lunes, 6=domingo)
-  Map<int, int> dailyMovements = {
-    0: 0,
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
-  };
-
-  // Ejercicio actual
+  // --------------------------
+  // Exercise flow
+  // --------------------------
   Exercise? currentExercise;
   Exercise? _lastExercise;
 
-  // Exercise flow
   void startRandomExercise() {
     if (exercises.isEmpty) return;
 
@@ -60,35 +61,30 @@ class AppState extends ChangeNotifier {
     yearOfBirth = yob;
     this.country = country;
     notifyListeners();
+    saveProfile();
   }
 
   void addSensorMock({required String name}) {
     final id = 'sensor_${DateTime.now().millisecondsSinceEpoch}';
-    sensors.add(
-      Sensor(
-        id: id,
-        name: name,
-        connected: true,
-        active: false,
-      ),
-    );
+    sensors.add(Sensor(id: id, name: name, connected: true, active: false));
     notifyListeners();
+    saveSensors();
   }
 
-  List<Sensor> get activeSensors {
-    return sensors.where((s) => s.active && s.connected).toList();
-  }
+  List<Sensor> get activeSensors => sensors.where((s) => s.active && s.connected).toList();
 
   void toggleConnect(String id) {
     final s = sensors.firstWhere((x) => x.id == id);
     s.connected = !s.connected;
     if (!s.connected) s.active = false;
     notifyListeners();
+    saveSensors();
   }
 
   void deleteSensor(String id) {
     sensors.removeWhere((x) => x.id == id);
     notifyListeners();
+    saveSensors();
   }
 
   void toggleActiveSensor(String id) {
@@ -96,6 +92,7 @@ class AppState extends ChangeNotifier {
     if (!s.connected) return;
     s.active = !s.active;
     notifyListeners();
+    saveSensors();
   }
 
   Sensor? get activeSensor {
@@ -109,11 +106,9 @@ class AppState extends ChangeNotifier {
   // ======================
   // MINI ROUTINE LOGIC
   // ======================
-
   List<Sensor> routineSensors = [];
   int routineIndex = 0;
 
-  // Start routine using 3–4 random active & connected sensors
   void startRoutine() {
     final availableSensors = sensors.where((s) => s.active && s.connected).toList();
     if (availableSensors.isEmpty) return;
@@ -142,10 +137,13 @@ class AppState extends ChangeNotifier {
   void nextRoutineSensor() {
     routineIndex++;
     if (isRoutineFinished) {
-      todayExercises++; // Incrementa ejercicios hoy
-      addMovementToday(); // Sincroniza con gráfico
+      todayExercises++;
+      addMovementToday();
+      addFamilyMessagesForRoutine();
     }
     notifyListeners();
+    saveProfile();
+    saveActivity();
   }
 
   bool get isRoutineFinished => routineIndex >= routineSensors.length;
@@ -159,16 +157,170 @@ class AppState extends ChangeNotifier {
   // ======================
   // MOVEMENTS BY DAY
   // ======================
-
-  // Suma +1 al día actual
   void addMovementToday() {
     final today = DateTime.now().weekday - 1; // 0 = lunes
     dailyMovements[today] = (dailyMovements[today] ?? 0) + 1;
     notifyListeners();
+    saveActivity();
   }
 
-  // Total semanal
   int get weeklyMovements => dailyMovements.values.fold(0, (sum, val) => sum + val);
+
+  // ======================
+  // FAMILY CONNECTION
+  // ======================
+  List<FamilyContact> familyContacts = [];
+
+  void addFamilyContact({required String name, required String phone}) {
+    familyContacts.add(FamilyContact(
+        id: DateTime.now().millisecondsSinceEpoch.toString(), name: name, phone: phone));
+    notifyListeners();
+    saveFamilyContacts();
+  }
+
+  void removeFamilyContact(String id) {
+    familyContacts.removeWhere((c) => c.id == id);
+    notifyListeners();
+    saveFamilyContacts();
+  }
+
+  void toggleNotifications(String id) {
+    final c = familyContacts.firstWhere((c) => c.id == id);
+    c.notificationsEnabled = !c.notificationsEnabled;
+    notifyListeners();
+    saveFamilyContacts();
+  }
+
+  // ======================
+  // PERSISTENCE
+  // ======================
+  Future<void> saveProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('profile', jsonEncode({
+      'name': name,
+      'yearOfBirth': yearOfBirth,
+      'country': country,
+      'todayExercises': todayExercises,
+    }));
+  }
+
+  Future<void> loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('profile');
+    if (raw != null) {
+      final json = jsonDecode(raw);
+      name = json['name'] ?? '';
+      yearOfBirth = json['yearOfBirth'] ?? '';
+      country = json['country'] ?? '';
+      todayExercises = json['todayExercises'] ?? 0;
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveSensors() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('sensors', jsonEncode(sensors.map((s) => s.toJson()).toList()));
+  }
+
+  Future<void> loadSensors() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('sensors');
+    if (raw != null) {
+      final list = jsonDecode(raw) as List;
+      sensors.clear();
+      sensors.addAll(list.map((e) => Sensor.fromJson(e)));
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveFamilyContacts() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('familyContacts', jsonEncode(familyContacts.map((c) => c.toJson()).toList()));
+  }
+
+  Future<void> loadFamilyContacts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('familyContacts');
+    if (raw != null) {
+      final list = jsonDecode(raw) as List;
+      familyContacts.clear();
+      familyContacts.addAll(list.map((e) => FamilyContact.fromJson(e)));
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveActivity() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('dailyMovements', jsonEncode(dailyMovements));
+  }
+
+  Future<void> loadActivity() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString('dailyMovements');
+    if (raw != null) {
+      dailyMovements = Map<int, int>.from(jsonDecode(raw));
+      notifyListeners();
+    }
+  }
+
+  // Mensajes familiares
+List<String> familyMessages = [];
+
+void addFamilyMessagesForRoutine() {
+  if (familyContacts.isEmpty) return;
+
+  final today = DateTime.now();
+  final dateString = "${today.day}/${today.month}";
+
+  for (var c in familyContacts) {
+    final message = "${c.name}, ${name} completed a routine on $dateString!";
+    familyMessages.add(message);
+  }
+
+  notifyListeners();
+}
+
+  Future<void> saveToStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('name', name);
+    prefs.setString('yearOfBirth', yearOfBirth);
+    prefs.setString('country', country);
+
+    prefs.setInt('todayExercises', todayExercises);
+
+    prefs.setStringList('sensors', sensors.map((s) => jsonEncode(s.toJson())).toList());
+    prefs.setStringList('familyContacts', familyContacts.map((c) => jsonEncode(c.toJson())).toList());
+
+    prefs.setString('dailyMovements', jsonEncode(dailyMovements));
+  }
+
+  Future<void> loadFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    name = prefs.getString('name') ?? '';
+    yearOfBirth = prefs.getString('yearOfBirth') ?? '';
+    country = prefs.getString('country') ?? '';
+
+    todayExercises = prefs.getInt('todayExercises') ?? 0;
+
+    final sensorList = prefs.getStringList('sensors') ?? [];
+    sensors.clear();
+    for (var s in sensorList) {
+      sensors.add(Sensor.fromJson(jsonDecode(s)));
+    }
+
+    final contactList = prefs.getStringList('familyContacts') ?? [];
+    familyContacts.clear();
+    for (var c in contactList) {
+      familyContacts.add(FamilyContact.fromJson(jsonDecode(c)));
+    }
+
+    final movementsStr = prefs.getString('dailyMovements');
+    if (movementsStr != null) {
+      dailyMovements = Map<int,int>.from(jsonDecode(movementsStr));
+    }
+
+    notifyListeners();
+  }
 }
 
 // ======================

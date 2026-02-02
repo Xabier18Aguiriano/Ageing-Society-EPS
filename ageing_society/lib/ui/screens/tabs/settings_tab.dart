@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../sensors/my_sensors_screen.dart';
-import 'package:ageing_society/ui/screens/profile_screen.dart';
+import '../profile_screen.dart';
+import '../family_connection_screen.dart';
 
 class SettingsTab extends StatelessWidget {
   const SettingsTab({super.key});
@@ -23,41 +24,29 @@ class SettingsTab extends StatelessWidget {
                 title: 'Profile',
                 subtitle: 'Edit your name, age\nor profile photo',
                 icon: Icons.person_rounded,
-                onTap: () {
-                  Navigator.pushNamed(context, ProfileScreen.route);
-                },  
+                onTap: () => Navigator.pushNamed(context, ProfileScreen.route),
               ),
               const SizedBox(height: 12),
 
               _SettingsTile(
-                title: 'Connected\nfamily',
-                subtitle: 'Manage who\nreceives notifications',
+                title: 'Connected family',
+                subtitle: 'Manage who receives notifications',
                 icon: Icons.groups_rounded,
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(
+                      builder: (_) => const FamilyConnectionScreen(),
+                      ),
+                    );
+                   }
               ),
               const SizedBox(height: 12),
 
               _SettingsTile(
                 title: 'Sensor settings',
-                subtitle: 'Manage NFC\nstickers and workouts hours',
+                subtitle: 'Manage NFC stickers and workouts hours',
                 icon: Icons.nfc_rounded,
                 onTap: () => Navigator.pushNamed(context, MySensorsScreen.route),
-              ),
-              const SizedBox(height: 12),
-
-              _SettingsTile(
-                title: 'Safety mode',
-                subtitle: 'Receive alerts if\ninactivity is detected',
-                icon: Icons.shield_rounded,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.circle, size: 10, color: AppTheme.green),
-                    SizedBox(width: 6),
-                    Text('Active', style: TextStyle(color: AppTheme.muted)),
-                  ],
-                ),
-                onTap: () {},
               ),
             ],
           ),
@@ -71,7 +60,6 @@ class _SettingsTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
-  final Widget? trailing;
   final VoidCallback onTap;
 
   const _SettingsTile({
@@ -79,7 +67,6 @@ class _SettingsTile extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.onTap,
-    this.trailing,
   });
 
   @override
@@ -102,17 +89,12 @@ class _SettingsTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(color: AppTheme.blue.withOpacity(0.10), borderRadius: BorderRadius.circular(14)),
               child: Icon(icon, color: AppTheme.blue),
             ),
-            if (trailing != null) ...[
-              const SizedBox(width: 10),
-              trailing!,
-            ],
           ],
         ),
       ),
